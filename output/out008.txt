@@ -1,0 +1,11 @@
+#include
+<stdiom
+int
+ma'mO
+{
+Print;
+("Hello
+work");
+return
+0:
+3

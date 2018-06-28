@@ -1,0 +1,10 @@
+itfnchxde
+(Stdio.h)
+int
+mahwn
+{
+PrinthHeHo
+world");
+return
+0;
+}

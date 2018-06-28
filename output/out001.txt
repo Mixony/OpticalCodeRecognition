@@ -1,0 +1,13 @@
+#ihclude
+(StdioJW
+int
+main()
+{
+Printf
+("Hello
+world");
+hat
+or
+M
+0;
+}

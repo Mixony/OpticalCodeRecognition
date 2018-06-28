@@ -1,0 +1,13 @@
+Wirincluae
+(Stdimk)
+#ihcwdc
+(iOStreOMA)
+{Ht
+malM)
+print;
+("Hello
+maria");
+Systemv'exit");
+return
+0;
+}

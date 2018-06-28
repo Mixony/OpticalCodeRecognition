@@ -1,0 +1,12 @@
+#Include
+<stdn'o.h>
+int
+main(
+)
+i
+N
+PrintF("Hello
+worH
+);
+returno;
+}

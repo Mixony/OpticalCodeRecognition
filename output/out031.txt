@@ -1,0 +1,12 @@
+#ihcwde
+(Std'xOh)
+int
+main
+<
+x
+{
+Veturn
+0:
+
+
+}

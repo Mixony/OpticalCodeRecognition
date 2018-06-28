@@ -1,0 +1,16 @@
+#incwde
+(Sthan)
+int
+main
+()
+{
+Printwohd".
+20'.
+PNRW
+(".IOcnl
+'
+A').'
+re
+turn
+0:
+L}

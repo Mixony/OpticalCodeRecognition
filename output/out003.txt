@@ -1,0 +1,16 @@
+#include
+(Stdio.k)
+it
+include
+<iosrream7
+int
+moJmO
+Prm
+tf
+(
+"
+Hello
+world");
+SyStemC'exit");
+return
+0;

@@ -1,0 +1,10 @@
+:{ifnclude
+<5tdian>
+int
+main()
+{
+Printh'HeHo
+world");
+YQtUVh
+O;
+}
