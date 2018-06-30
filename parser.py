@@ -1,7 +1,16 @@
 from constants import *
 from utils import *
+from ppdirective_parser import *
 
-def parse(words):
+def parseTokens(tokens):
+	for tokenLine in tokens:
+		if tokenLine[0][0]=='hashtag':
+			print('#'+parsePPDirective(tokenLine[1:]))			
+			
+
+
+
+'''def parse(words):
 	for line in words:
 		parseLine(line)
 
@@ -82,4 +91,4 @@ def checkPrintf(words):
 	res = ''
 	for word in words:
 		res += word + ' '
-	return res
+	return res'''

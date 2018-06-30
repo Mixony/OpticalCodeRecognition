@@ -1,0 +1,14 @@
+#
+include
+(
+mathh
+)
+int
+main
+(
+)
+{
+PEtUPh
+0
+;
+}

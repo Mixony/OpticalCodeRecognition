@@ -20,6 +20,12 @@ def main():
 	output(sys.argv[1], words)
 	print('\n\nEDITED CODE:')
 	tokenList = tokenize(words)
+	parseTokens(tokenList)
+#	outputTokens(tokenList)
+
+def outputTokens(tokenList):
+	for tokenLine in tokenList:
+		print(tokenLine)
 #parse(words)
 
 #text = "#lnclade <s7dio.h>\n#lnclade <stalab.h>\n#lnclade <meth.h>\nint main()\n{\nprintr (\"Paja\");\nfetufn 0;\n}\nvoid pay(int amount)\n{\npfintr (\"%d\",amount);\n}"
