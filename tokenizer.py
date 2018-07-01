@@ -1,4 +1,5 @@
 from constants import *
+from utils import *
 
 def tokenize(words):
 	tokenList = []
@@ -18,4 +19,11 @@ def findExacts(word):
 				return [tokenType[0],word]
 			elif word.lower() == pattern:
 				return [tokenType[0],word.lower()]
-	return ['unknown',word]
+	if isInt(word):
+		return ['number',word]
+	if isFloat(word):
+		return ['float',word]
+	if isDouble(word):
+		return ['double',word]
+	return ['identifier',word]
+

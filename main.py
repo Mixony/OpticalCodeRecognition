@@ -11,6 +11,7 @@ from utils import output
 from image_manipulation import findText
 from text_manipulation import *
 from tokenizer import *
+from parser2 import *
 
 def main():
 	im = findText(resize_width, 'input/text{}.jpg'.format(sys.argv[1]),sys.argv[1])
@@ -20,12 +21,10 @@ def main():
 	output(sys.argv[1], words)
 	print('\n\nEDITED CODE:')
 	tokenList = tokenize(words)
-	parseTokens(tokenList)
-#	outputTokens(tokenList)
+	readTokenList(tokenList)
+	program()
+	
 
-def outputTokens(tokenList):
-	for tokenLine in tokenList:
-		print(tokenLine)
 #parse(words)
 
 #text = "#lnclade <s7dio.h>\n#lnclade <stalab.h>\n#lnclade <meth.h>\nint main()\n{\nprintr (\"Paja\");\nfetufn 0;\n}\nvoid pay(int amount)\n{\npfintr (\"%d\",amount);\n}"

@@ -35,7 +35,7 @@ tokens = [
 	'stdlib.h','stdnoreturn.h','string.h','tgmath.h','threads.h','time.h','uchar.h',
 	'wchar.h','wctype.h'],
 	['ppdirective', 'include', 'define', 'undef ', 'ifdef', 'ifndef', 'if', 'error'],
-	['varname', 'int', 'float', 'double', 'void' ],
+	['vartype', 'int', 'float', 'double', 'void' ],
 	['return','return'],
 	['opencbracket','{'],
 	['closedcbracket','}'],
@@ -48,7 +48,10 @@ tokens = [
 	['hashtag','#'],
 	['greater','>'],
 	['less','<'],
-	['equals','=']
+	['equals','='],
+	['graveaccent','`'],
+	['opensbracket','['],
+	['closedsbracket',']']
 
 ]
 

@@ -166,3 +166,30 @@ def output(number, words):
 			st+=words[i][j]+' '
 			f.write("{}\n".format(words[i][j]))
 		print(st)
+
+def isInt(s):
+    try: 
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+def isFloat(s):
+    try: 
+        float(s[0:-1])
+        if s[-1] not in ['0','1','2','3','4','5','6','7','8','9']:
+        	return True
+        return False
+    except ValueError:
+        return False
+
+def isDouble(s):
+    try: 
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+def outputTokens(tokenList):
+	for tokenLine in tokenList:
+		print(tokenLine)
