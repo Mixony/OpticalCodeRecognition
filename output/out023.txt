@@ -1,8 +1,8 @@
 #
-Include
+include
 (
 Stdio.h
->
+)
 int
 main
 (
@@ -12,10 +12,10 @@ Printf
 (
 "
 Hello
-Wu
+ond
 "
 )
-;
+3
 return
 0
 ;

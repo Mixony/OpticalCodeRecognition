@@ -1,5 +1,6 @@
 from constants import *
 from utils import *
+import nltk
 
 def tokenize(words):
 	tokenList = []
@@ -13,17 +14,17 @@ def tokenize(words):
 	return tokenList
 
 def findExacts(word):
-	for tokenType in tokens:
-		for pattern in tokenType[1:]:
-			if word == pattern:
-				return [tokenType[0],word]
-			elif word.lower() == pattern:
-				return [tokenType[0],word.lower()]
 	if isInt(word):
 		return ['number',word]
 	if isFloat(word):
 		return ['float',word]
 	if isDouble(word):
 		return ['double',word]
+	for tokenType in tokens:
+		for pattern in tokenType[1:]:
+			if word == pattern:
+				return [tokenType[0],word]
+			elif word.lower() == pattern:
+				return [tokenType[0],word.lower()]
 	return ['identifier',word]
 

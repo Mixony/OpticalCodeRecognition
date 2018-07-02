@@ -1,14 +1,12 @@
 #
 include
-(
-mathh
-)
+mounm
 int
 main
 (
 )
 {
-PEtUPh
+rewrn
 0
 ;
 }
