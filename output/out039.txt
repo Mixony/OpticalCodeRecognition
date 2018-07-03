@@ -16,7 +16,7 @@ main
 {
 int
 a
-:
+=
 123
 ;
 printf
