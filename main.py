@@ -6,7 +6,6 @@ import sys
 
 #usermade libraries
 from constants import *
-from parser import *
 from utils import output
 from image_manipulation import *
 from text_manipulation import *
@@ -15,8 +14,6 @@ from parser2 import *
 
 def main():
 	im = preprocessImage(resize_width, 'input/text{}.jpg'.format(sys.argv[1]),sys.argv[1])
-	# im = findText(resize_width, 'input/text{}.jpg'.format(sys.argv[1]),sys.argv[1])
-	# im.show()
 	text = pytesseract.image_to_string(im, lang=tesseract_language, config=tesseract_config)
 	words = separateText(text)
 	output(sys.argv[1], words)
