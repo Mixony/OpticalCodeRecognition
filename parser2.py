@@ -29,7 +29,7 @@ def error(msg):
 
 def accept(token):
 	global currToken
-	if token[0] == currToken[0] and token[1] == currToken[1]:
+	if token == currToken[0]:
 		nextToken()
 		return True
 	return False
@@ -48,39 +48,38 @@ def program():
 	nextToken()
 	while i <= len(tokenList):
 		tkn = currToken[1]
-		if accept(['hashtag','#']) :
+		if accept('hashtag') :
 			code += '#'
 			ppdirective()
 			code+='\n'
-		elif accept(['vartype',tkn]):
+		elif accept('vartype'):
 			code += tkn + ' '
 			tkn = currToken[1]
-			if expect(['identifier',tkn]):
+			if expect('identifier'):
 				code += tkn
 				globalSpace()
 			code+='\n'
 		else:
 			nextToken()
-		
-		#code+='\n'
 	return code
 
 def ppdirective():
 	global code
-	if(accept(['ppdirective','include'])):
+	if accept('include'):
 		code+='include '
 		includeStatement()
-	elif(accept(['ppdirective','define'])):
-		defineStatement()
+	elif accept('define'):
+		code+='define '
+		defineVarName()
 
 def includeStatement():
 	global code
-	if(accept(['less','<']) or accept(['openbracket','(']) or accept(['opencbracket','{'])):
+	if accept('less') or accept('openbracket') or accept('opencbracket'):
 		code += '<'
 		systemHeader()
 		code += '>'
 		nextToken()
-	elif(accept(['quote','\"']) or accept(['apostrophe','\'']) or accept(['graveaccent','`'])):
+	elif accept('quote') or accept('apostrophe') or accept('graveaccent'):
 		code += '\"'
 		usermadeHeader()
 		code += '\"'
@@ -90,7 +89,7 @@ def systemHeader():
 	global code	
 	global currToken
 	tkn = currToken[1]
-	if accept(['system_library', tkn]):
+	if accept('system_library'):
 		code += tkn
 	else:
 		print('Couldnt recognize library name')
@@ -101,37 +100,31 @@ def usermadeHeader():
 	code += currToken[1]
 	nextToken()
 
-def defineStatement():
-	global code
-	code += 'define '
-	ppVar()
-	
-def ppVar():
+def defineVarName():
 	global code
 	global currToken
 	global j
 	tkn = currToken[1]
-	if(expect(['identifier',tkn])):
+	if expect('identifier'):
 		code += tkn + ' '
 		if j == 0:
 			return
-		tkn = currToken[1]
 		varValue()
 
 def varValue():
 	global code
 	global currToken
 	tkn = currToken[1]
-	if(accept(['number',tkn])):
+	if accept('number'):
 		intValue(tkn);
 		return
-	elif accept(['float',tkn]):
+	elif accept('float'):
 		floatValue(tkn)
 		return
-	elif accept(['double',tkn]):
+	elif accept('double'):
 		doubleValue(tkn)
 		return
-	elif accept(['apostrophe','\'']) or accept(['graveaccent','`']) or accept(['quote','\"']):
+	elif accept('apostrophe') or accept('graveaccent') or accept('quote'):
 		stringValue()
 		return
 
@@ -151,7 +144,7 @@ def stringValue():
 	global code
 	global currToken
 	tkn = currToken[1]
-	if accept(['identifier',tkn]) or accept(['number',tkn]) :
+	if accept('identifier') or accept('number'):
 		if len(tkn)==1:
 			code += '\''
 			code += tkn
@@ -163,9 +156,9 @@ def stringValue():
 
 def globalSpace():
 	global code
-	if accept(['semicolon',';']):
+	if accept('semicolon'):
 		code += ';'
-	elif accept(['openbracket','(']):
+	elif accept('openbracket'):
 		code += '('
 		function()
 	else:
@@ -175,17 +168,17 @@ def function():
 	global code
 	global currToken
 	tkn = currToken[1]
-	if accept(['closedbracket',')']):
+	if accept('closedbracket'):
 		code += tkn
 	else:
 		argumentsDefinition()
 	tkn = currToken[1]
-	if accept(['opencbracket','{']) or accept(['openbracket','(']) or accept(['less','<']):
+	if accept('opencbracket') or accept('openbracket') or accept('less'):
 		code+='\n{\n'
 		block()
 		code+='\n}'
 		return
-	elif accept(['colon',':']) or accept(['semicolon',';']):
+	elif accept('colon') or accept('semicolon'):
 		code += tkn
 		return
 	else:
@@ -195,14 +188,14 @@ def argumentsDefinition():
 	global code
 	global currToken
 	tkn = currToken[1]
-	while not accept(['closedbracket',')']):
-		if expect(['vartype',tkn]):
+	while not accept('closedbracket'):
+		if expect('vartype'):
 			code += tkn + ' '
 		tkn = currToken[1]
-		if expect(['identifier',tkn]):
+		if expect('identifier'):
 			code += tkn
 		tkn = currToken[1]
-		if accept(['comma',',']) or accept(['period','.']):
+		if accept('comma') or accept('period'):
 			code += tkn + ' '
 			tkn = currToken[1]
 	code += tkn
@@ -211,8 +204,8 @@ def block():
 	global code
 	global currToken
 	tkn = currToken[1]
-	while not accept(['closedcbracket','}']):
-		if(accept(['vartype',tkn])):
+	while not accept('closedcbracket'):
+		if accept('vartype'):
 			code += tkn + ' '
 			varDefinition()
 			code += '\n'
@@ -224,13 +217,13 @@ def varDefinition():
 	global currToken
 	global j
 	tkn = currToken[1]
-	if expect(['identifier',tkn]):
+	if expect('identifier'):
 		code += tkn
 		tkn = currToken[1]
-		if accept(['semicolon',';']) or accept(['colon',':']):
+		if accept('semicolon') or accept('colon'):
 			code += ';'
 			return
-		elif accept(['equals','=']):
+		elif accept('equals'):
 			code += tkn
 			expression()
 			return
@@ -240,9 +233,12 @@ def varDefinition():
 def expression():
 	global code
 	global currToken
-	if accept(['openbracket','(']):
+	if accept('openbracket'):
 		tkn = currToken[1]
 		code += tkn
 	tkn = currToken[1]
-	if accept(['number',tkn]) or  accept(['float',tkn]) or  accept(['double',tkn]):
+	if accept('number') or  accept('float') or  accept('double'):
 		code += tkn
+	else:
+		code = code
+		#TODO: something else
