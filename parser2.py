@@ -6,6 +6,7 @@ i = 0
 j = -1
 currToken = []
 code = ""
+eof = False
 
 def readTokenList(tl):
 	global tokenList
@@ -17,15 +18,18 @@ def nextToken():
 	global currToken
 	global code
 	global ast
+	global eof
 	j+=1
+	if eof:
+		print(code)
+		# print('\n')
+		# printAST(ast)
+		exit()
 	if j >= len(tokenList[i]):
 		j=0
 		i+=1
-	if i >= len(tokenList):
-		print(code)
-		'''print('\n')
-		printAST(ast)'''
-		exit()
+	if tokenList[i][j][0]=='eof':
+		eof = True
 	currToken = tokenList[i][j]
 
 def error(msg):
@@ -125,23 +129,8 @@ def defineVarName():
 		code += tkn + ' '
 		if j == 0:
 			return [tkn]
-		varname = [tkn,varValue()]
+		varname = [tkn,expression()]
 	return varname
-
-def varValue():
-	global code
-	global currToken
-	value = None
-	tkn = currToken[1]
-	if accept('number'):
-		value = intValue(tkn)
-	elif accept('float'):
-		value = floatValue(tkn)
-	elif accept('double'):
-		value = doubleValue(tkn)
-	elif accept('apostrophe') or accept('graveaccent') or accept('quote'):
-		value = stringValue()
-	return value
 
 def intValue(tkn):
 	global code
@@ -171,10 +160,15 @@ def stringValue():
 			return ['\''+tkn+'\'']
 		else:
 			code += '\"'
-			code += tkn
-			code += '\"'
+			code += tkn + ' '
+			tkn = currToken
+			while not accept('quote'):
+				code += tkn[1] + ' '
+				nextToken()
+				tkn = currToken
+			code += '\b\"'
 			nextToken()
-			return ['\"'+tkn+'\"']
+			return ['\"'+tkn[0]+'\"']
 
 def globalSpace(vt,t):
 	global code
@@ -238,11 +232,28 @@ def argumentsDefinition():
 def block():
 	global code
 	global currToken
-	tkn = currToken[1]
 	while not accept('closedcbracket'):
+		tkn = currToken[1]
 		if accept('vartype'):
 			code += tkn + ' '
 			varDefinition()
+			code += '\n'
+		elif accept('return'):
+			code += tkn
+			if accept('semicolon'):
+				code += ';'
+				continue
+			code += ' '
+			expression()
+			if accept('semicolon'):
+				code += ';'
+		elif accept('identifier'):
+			if accept('openbracket'):
+				code += tkn
+				callArguments()
+			elif accept('opencbracket'):
+				callArguments()
+				code += tkn
 			code += '\n'
 		else:
 			nextToken()
@@ -274,12 +285,14 @@ def factor():
 	if accept('identifier'):
 		code += tkn
 	elif accept('number'):
-		code += tkn
+		intValue(tkn)
 	elif accept('float'):
-		code += tkn
+		floatValue(tkn)
 	elif accept('double'):
-		code += tkn
+		doubleValue(tkn)
 	elif accept('apostrophe'):
+		stringValue()
+	elif accept('quote'):
 		stringValue()
 	elif accept('openbracket'):
 		code += tkn
@@ -320,45 +333,18 @@ def expression():
 		tkntyp = currToken[0]
 		tkn = currToken[1]
 
+		#
+		#	if accept('semicolon'):
+		#		code += ';'
+		#		continue
 
-
-# def expression():
-# 	global code
-# 	global currToken
-# 	while not accept('semicolon'):
-# 		print(currToken[1])
-# 		if accept('openbracket') or accept('opencbracket'):
-# 			code += '('
-# 		else:
-# 			code += currToken[1]
-# 			nextToken()
-# 	code += ';'
-
-
-
-##################################################################
-
-
-	# if accept('openbracket') or accept('opencbracket'):
-	# 	code += '('
-	# tkn = currToken[1]
-	# if accept('number') or  accept('float') or  accept('double'):
-	# 	code += tkn
-	# tkn = currToken[1]
-	# if accept('identifier'):
-	# 	code += tkn
-	# tkn = currToken[1]
-	# if accept('apostrophe') or accept('quote') or accept('graveaccent'):
-	# 	stringValue()
-	# tkn = currToken[1]
-	# if accept('semicolon') or accept('colon'):
-	# 	code += tkn
-	# 	return
-	# tkn = currToken[1]
-	# if accept('plus') or accept('minus') or accept('astrisk') or accept('slash'):
-	# 	code += tkn
-	# tkn = currToken[1]
-	# if accept('closedbracket') or accept('closedcbracket'):
-	# 	code += ')'
-	# expression()
-		#TODO: something else
+def callArguments():
+	global code
+	global currToken
+	tkn = currToken[1]
+	code += '('
+	while not (accept('closedbracket') or accept('closedcbracket')):
+		code += tkn
+		nextToken()
+		tkn = currToken[1]
+	code += ')'

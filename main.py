@@ -19,6 +19,7 @@ def main():
 	output(sys.argv[1], words)
 	print('\n\nEDITED CODE:')
 	tokenList = tokenize(words)
+	outputTokens(tokenList)
 	readTokenList(tokenList)
 	code = program()
 	print(code)

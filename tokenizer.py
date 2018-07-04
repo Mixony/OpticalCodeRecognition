@@ -10,7 +10,7 @@ def tokenize(words):
 			token = findExacts(word)
 			tokenLine.append(token)			
 		tokenList.append(tokenLine)
-		print(tokenLine)
+	tokenList[-1].append(['eof','eof'])
 	return tokenList
 
 def findExacts(word):
