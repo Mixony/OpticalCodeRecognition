@@ -314,10 +314,11 @@ def expression():
 	tkntyp = currToken[0]
 	tkn = currToken[1]
 	while tkntyp == 'plus' or tkntyp == 'minus':
+		code += tkn
 		nextToken()
 		term();
 		tkntyp = currToken[0]
-		tkn = currToken[1]	
+		tkn = currToken[1]
 
 
 
