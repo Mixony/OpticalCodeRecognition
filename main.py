@@ -15,9 +15,10 @@ from parser2 import *
 def main():
 	im = preprocessImage(resize_width, 'input/text{}.jpg'.format(sys.argv[1]),sys.argv[1])
 	text = pytesseract.image_to_string(im, lang=tesseract_language, config=tesseract_config)
+	# print(text+'\n\n')
 	words = separateText(text)
 	output(sys.argv[1], words)
-	print('\n\nEDITED CODE:')
+	print('\nEDITED CODE:\n')
 	tokenList = tokenize(words)
 	outputTokens(tokenList)
 	readTokenList(tokenList)

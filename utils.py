@@ -165,6 +165,8 @@ def unicodeToAscii(text):
 			res += '*'
 		elif c == u'/':
 			res += '/'
+		elif c == u'!':
+			res += '!'
 	return res
 
 def output(number, words):

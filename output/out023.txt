@@ -12,10 +12,12 @@ Printf
 (
 "
 Hello
-ond
+wet
+/
+Li
 "
 )
-3
+;
 return
 0
 ;

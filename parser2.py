@@ -162,7 +162,7 @@ def stringValue():
 			code += '\"'
 			code += tkn + ' '
 			tkn = currToken
-			while not accept('quote'):
+			while tkn[0] != 'quote':
 				code += tkn[1] + ' '
 				nextToken()
 				tkn = currToken
@@ -235,7 +235,10 @@ def block():
 	while not accept('closedcbracket'):
 		tkn = currToken[1]
 		if accept('vartype'):
-			code += tkn + ' '
+			code += tkn
+			if accept('asterisk'):
+				code += '*'
+			code += ' '
 			varDefinition()
 			code += '\n'
 		elif accept('return'):
@@ -251,10 +254,15 @@ def block():
 			if accept('openbracket'):
 				code += tkn
 				callArguments()
+				if accept('semicolon'):
+					code += ';'
 			elif accept('opencbracket'):
 				callArguments()
 				code += tkn
 			code += '\n'
+		elif accept('for'):
+			code += 'for'
+			forLoop()
 		else:
 			nextToken()
 
@@ -300,12 +308,13 @@ def factor():
 		expect('closedbracket')
 		code += ')'
 	else:
-		error('factor not found at line {},{}'.format(i,j))
+		error('factor not found at line {},{}, found {}'.format(i,j,currToken))
 		nextToken()
 
 def term():
 	global code
 	global currToken
+	global i
 	factor()
 	tkntyp = currToken[0]
 	tkn = currToken[1]
@@ -333,18 +342,82 @@ def expression():
 		tkntyp = currToken[0]
 		tkn = currToken[1]
 
-		#
-		#	if accept('semicolon'):
-		#		code += ';'
-		#		continue
-
 def callArguments():
 	global code
 	global currToken
 	tkn = currToken[1]
 	code += '('
 	while not (accept('closedbracket') or accept('closedcbracket')):
-		code += tkn
-		nextToken()
+		expression()
+		if currToken[0]=='comma':# or accept('period'):
+			code += ','
+			nextToken()
 		tkn = currToken[1]
 	code += ')'
+
+def forLoop():
+	global code
+	global currToken
+	if currToken[0] == 'openbracket' or currToken[0] == 'opencbracket':
+		nextToken()
+		code += '('
+		varInit()
+		condition()
+		if accept('semicolon'):
+			code += ';'
+		increment()
+		if accept('closedbracket'):
+			code += ')\n'
+	else:
+		print('for loop needs open bracket')
+
+def varInit():
+	global code
+	global currToken
+	if currToken[0] == 'semicolon' or currToken[0] == 'colon':
+			code += ';'
+			nextToken()
+			return
+	while currToken[0] != 'semicolon' and currToken[0] != 'colon':
+		expression()
+		if currToken[0] == 'comma' or currToken[0] == 'period':
+			code += ','
+			nextToken()
+		elif currToken[0] == 'equals':
+			code += '='
+			nextToken()
+	code += ';'
+	nextToken()
+
+def condition():
+	global code
+	global currToken
+	tkn = currToken[1]
+	print(currToken)
+	while currToken[0] in ['identifier', 'number', 'float', 'double', 'less', 'greater', 'equals', 'exclamation']:
+		expression()
+		if accept('less'):
+			if currToken[0]=='equals':
+				code += '<='
+			else:
+				code += '<'
+		elif accept('greater'):
+			if currToken[0]=='equals':
+				code += '>='
+			else:
+				code += '>'
+		elif accept('equals'):
+			if currToken[0]=='equals':
+				code += '=='
+		elif accept('exclamation'):
+			if currToken[0]=='equals':
+				code += '!='
+		expression()
+
+def increment():
+	global code
+	global currToken
+	while currToken[0] in ['identifier', 'number', 'float', 'double', 'plus', 'minus', 'equals', 'asteriks', 'slash']:
+		code += currToken[1]
+		nextToken();
+	

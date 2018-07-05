@@ -6,7 +6,7 @@ password.h
 #
 define
 PAJA
-123.45f
+123.451c
 int
 mainimo
 ;
@@ -22,7 +22,7 @@ b
 {
 int
 a
-:
+=
 123
 ;
 printf

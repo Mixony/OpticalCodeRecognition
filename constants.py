@@ -65,6 +65,7 @@ tokens = [
 	['minus','-'],
 	['asterisk','*'],
 	['slash','/'],
+	['exclamation','!'],
 	['if','if'],
 	['for','for'],
 	['while','while']

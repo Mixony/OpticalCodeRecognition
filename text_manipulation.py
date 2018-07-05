@@ -21,7 +21,7 @@ def separateSpecialCharacters(lines):
 		line = list(lines[i])
 		lines[i] = ''
 		for j in range(len(line)):
-			if line[j] in ['<','>','(',')','{','}','#','\'','\"',';',':',',','+','-','*','/', '=']:
+			if line[j] in ['<','>','(',')','{','}','#','\'','\"',';',':',',','+','-','*','/', '=', '!']:
 				if j>0:
 					if line[j-1] is not ' ':
 						lines[i]+=' '
