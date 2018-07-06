@@ -236,8 +236,6 @@ def block():
 		tkn = currToken[1]
 		if accept('vartype'):
 			code += tkn
-			if accept('asterisk'):
-				code += '*'
 			code += ' '
 			varDefinition()
 			code += '\n'
@@ -263,8 +261,50 @@ def block():
 		elif accept('for'):
 			code += 'for'
 			forLoop()
+		elif accept('while'):
+			code += 'while'
+			whileLoop()
+		elif accept('if'):
+			code += 'if'
+			ifStatement()
 		else:
 			nextToken()
+
+def oneLineBlock():
+	global code
+	global currToken
+	tkn = currToken[1]
+	if accept('vartype'):
+		code += tkn
+		if accept('asterisk'):
+			code += '*'
+		code += ' '
+		varDefinition()
+		code += '\n'
+	elif accept('return'):
+		code += tkn
+		if accept('semicolon'):
+			code += ';'
+			return
+		code += ' '
+		expression()
+		if accept('semicolon'):
+			code += ';'
+	elif accept('identifier'):
+		if accept('openbracket'):
+			code += tkn
+			callArguments()
+			if accept('semicolon'):
+				code += ';'
+		elif accept('opencbracket'):
+			callArguments()
+			code += tkn
+		code += '\n'
+	elif accept('for'):
+		code += 'for'
+		forLoop()
+	else:
+		nextToken()
 
 def varDefinition():
 	global code
@@ -362,12 +402,18 @@ def forLoop():
 		nextToken()
 		code += '('
 		varInit()
+		if accept('semicolon'):
+			code += ';'
 		condition()
 		if accept('semicolon'):
 			code += ';'
 		increment()
 		if accept('closedbracket'):
 			code += ')\n'
+		if accept('opencbracket'):
+			block()
+		else:
+			oneLineBlock()
 	else:
 		print('for loop needs open bracket')
 
@@ -386,33 +432,37 @@ def varInit():
 		elif currToken[0] == 'equals':
 			code += '='
 			nextToken()
-	code += ';'
-	nextToken()
 
 def condition():
 	global code
 	global currToken
 	tkn = currToken[1]
-	print(currToken)
 	while currToken[0] in ['identifier', 'number', 'float', 'double', 'less', 'greater', 'equals', 'exclamation']:
 		expression()
 		if accept('less'):
 			if currToken[0]=='equals':
 				code += '<='
+				nextToken()
 			else:
 				code += '<'
 		elif accept('greater'):
 			if currToken[0]=='equals':
 				code += '>='
+				nextToken()
 			else:
 				code += '>'
 		elif accept('equals'):
 			if currToken[0]=='equals':
 				code += '=='
+				nextToken()
 		elif accept('exclamation'):
 			if currToken[0]=='equals':
 				code += '!='
-		expression()
+				nextToken()
+		if currToken[0] == 'closedbracket' or currToken[0] == 'closedcbracket':
+			code += '0'
+		else:
+			expression()
 
 def increment():
 	global code
@@ -420,4 +470,44 @@ def increment():
 	while currToken[0] in ['identifier', 'number', 'float', 'double', 'plus', 'minus', 'equals', 'asteriks', 'slash']:
 		code += currToken[1]
 		nextToken();
-	
+
+def whileLoop():
+	global code
+	global currToken
+	if accept('openbracket') or accept('opencbracket'):
+		code += '('
+	condition()
+	if accept('closedbracket') or accept('closedcbracket'):
+		code += ')\n'
+	if accept('opencbracket'):
+		block()
+	else:
+		oneLineBlock()
+
+def ifStatement():
+	global code
+	global currToken
+	if accept('openbracket') or accept('opencbracket'):
+		code += '('
+	condition()
+	if accept('closedbracket') or accept('closedcbracket'):
+		code += ')\n'
+	if accept('opencbracket'):
+		block()
+	else:
+		oneLineBlock()
+	if accept('else'):
+		code += 'else '
+		if accept('if'):
+			code += 'if'
+			ifStatement()
+		else:
+			elseStatement()
+
+def elseStatement():
+	global code
+	global currToken
+	if accept('opencbracket'):
+		block()
+	else:
+		oneLineBlock()
