@@ -4,6 +4,14 @@ def AstToCode(ast):
 	print(ast)
 
 def printAST(ast):
+	# global tab
+	# for node in ast:
+	# 	if type(node) is list:
+	# 		tab += 1
+	# 		printAST(node)
+	# 		tab -= 1
+	# 	else:
+	# 		print('|\n+'+('='* tab)+str(node))
 	global tab
 	for node in ast:
 		if type(node) is list:
@@ -11,4 +19,4 @@ def printAST(ast):
 			printAST(node)
 			tab -= 1
 		else:
-			print(('-'* tab)+str(node))
+			print(('\t'*tab)+str(node))

@@ -9,7 +9,7 @@ code = ""
 eof = False
 ast = []
 
-def readTokenList(tl):
+def importTokenList(tl):
 	global tokenList
 	tokenList = tl
 
@@ -23,8 +23,10 @@ def nextToken():
 	j+=1
 	if eof:
 		print(code)
-		# print('\n')
-		# printAST(ast)
+		print('\n')
+		print(ast)
+		print('\n')
+		printAST(ast)
 		exit()
 	if j >= len(tokenList[i]):
 		j=0
@@ -56,7 +58,7 @@ def program():
 	global tokenList
 	global currToken
 	global ast
-	ast=[]
+	ast=['program']
 	nextToken()
 	while i <= len(tokenList):
 		tkn = currToken[1]
@@ -92,12 +94,12 @@ def includeStatement():
 	lib = None
 	if accept('less') or accept('openbracket') or accept('opencbracket'):
 		code += '<'
-		lib = ['system_header',systemHeader()]
+		lib = ['system',systemHeader()]
 		code += '>'
 		nextToken()
 	elif accept('quote') or accept('apostrophe') or accept('graveaccent'):
 		code += '\"'
-		lib = ['user_header',usermadeHeader()]
+		lib = ['user',usermadeHeader()]
 		code += '\"'
 		nextToken()
 	return lib
@@ -136,17 +138,17 @@ def defineVarName():
 def intValue(tkn):
 	global code
 	code += tkn
-	return [tkn]
+	return ['intValue',tkn]
 
 def floatValue(tkn):
 	global code
 	code += tkn
-	return [tkn]
+	return ['floatValue',tkn]
 
 def doubleValue(tkn):
 	global code
 	code += tkn
-	return [tkn]
+	return ['doubleValue',tkn]
 
 def stringValue():
 	global code
@@ -158,7 +160,7 @@ def stringValue():
 			code += tkn
 			code += '\''
 			nextToken()
-			return ['\''+tkn+'\'']
+			return ['charValue','\''+tkn+'\'']
 		else:
 			code += '\"'
 			code += tkn + ' '
@@ -169,7 +171,7 @@ def stringValue():
 				tkn = currToken
 			code += '\b\"'
 			nextToken()
-			return ['\"'+tkn[0]+'\"']
+			return ['stringValue','\"'+tkn[0]+'\"']
 
 def globalSpace(vt,t):
 	global code
@@ -177,11 +179,17 @@ def globalSpace(vt,t):
 	tkn = currToken[1]
 	if accept('semicolon'):
 		code += ';'
-		return ['variable',['type',[vt]],['name',[t]]]
+		return ['variable',[vt,t]]
+	elif accept('equals'):
+		code += '='
+		eq = ['equals',['variable',[vt,t]],expression()]
+		if accept('semicolon'):
+			code += ';'
+		return eq
 	elif accept('openbracket'):
 		code += '('
-		args = function()
-		return ['function',['ret_type',[vt]],['name',[t]],['args',args]]
+		func = function()
+		return ['function',[vt,t,func[0],func[1]]]
 	else:
 		nextToken()
 
@@ -189,23 +197,22 @@ def function():
 	global code
 	global currToken
 	tkn = currToken[1]
-	ret = []
+	args = ['args']
+	body = ['body']
 	if accept('closedbracket'):
 		code += tkn
 	else:
-		ret.append(argumentsDefinition())
+		args.append(argumentsDefinition())
 	tkn = currToken[1]
 	if accept('opencbracket') or accept('openbracket') or accept('less'):
 		code+='\n{\n'
-		block()
+		body.append(block())
 		code+='\n}'
-		return
 	elif accept('colon') or accept('semicolon'):
 		code += tkn
-		return
 	else:
 		print('expected open curly bracket')
-	return [ret]
+	return [args,body]
 
 def argumentsDefinition():
 	global code
@@ -215,6 +222,7 @@ def argumentsDefinition():
 	t = None
 	args = []
 	while not (accept('closedbracket') or accept('closedcbracket') or accept('greater')):
+		args.append('var')
 		if expect('vartype'):
 			code += tkn + ' '
 			vt = tkn
@@ -226,7 +234,7 @@ def argumentsDefinition():
 		if accept('comma') or accept('period'):
 			code += tkn + ' '
 			tkn = currToken[1]
-		args.append(['variable',['type',[vt]],['name',[t]]])
+		args.append([vt,t])
 	code += tkn
 	return args
 
@@ -331,57 +339,68 @@ def factor():
 	global i
 	global j
 	tkn = currToken[1]
+	ret = ['factor']
 	if accept('identifier'):
 		code += tkn
+		ret.append(tkn)
 	elif accept('number'):
-		intValue(tkn)
+		ret.append(intValue(tkn))
 	elif accept('float'):
-		floatValue(tkn)
+		ret.append(floatValue(tkn))
 	elif accept('double'):
-		doubleValue(tkn)
+		ret.append(doubleValue(tkn))
 	elif accept('apostrophe'):
-		stringValue()
+		ret.append(stringValue())
 	elif accept('quote'):
-		stringValue()
+		ret.append(stringValue())
 	elif accept('openbracket'):
 		code += tkn
-		expression()
+		ret.append(expression())
 		expect('closedbracket')
 		code += ')'
 	else:
 		error('factor not found at line {},{}, found {}'.format(i,j,currToken))
 		nextToken()
+	return ret
 
 def term():
 	global code
 	global currToken
 	global i
-	factor()
+	ret = ['term']
+	ret.append(factor())
 	tkntyp = currToken[0]
 	tkn = currToken[1]
 	while tkntyp == 'asterisk' or tkntyp == 'slash':
+		ret.append(tkn)
 		code += tkn
 		nextToken()
-		factor()
+		ret.append(factor())
 		tkntyp = currToken[0]
+	return ret
 
 def expression():
 	global code
 	global currToken
+	ret = ['expression']
 	tkntyp = currToken[0]
 	tkn = currToken[1]
 	if tkntyp == 'plus' or tkntyp == 'minus':
 		code += tkn
+		ret.append(tkn)
 		nextToken()
-	term()
+	
+	ret.append(term())
 	tkntyp = currToken[0]
 	tkn = currToken[1]
 	while tkntyp == 'plus' or tkntyp == 'minus':
+		ret.append(tkn)
 		code += tkn
 		nextToken()
-		term();
+		ret.append(term())
 		tkntyp = currToken[0]
 		tkn = currToken[1]
+	return ret
 
 def callArguments():
 	global code
@@ -390,7 +409,7 @@ def callArguments():
 	code += '('
 	while not (accept('closedbracket') or accept('closedcbracket')):
 		expression()
-		if currToken[0]=='comma':# or accept('period'):
+		if currToken[0]=='comma':
 			code += ','
 			nextToken()
 		tkn = currToken[1]

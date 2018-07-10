@@ -21,9 +21,8 @@ def main():
 	print('\nEDITED CODE:\n')
 	tokenList = tokenize(words)
 	outputTokens(tokenList)
-	readTokenList(tokenList)
+	importTokenList(tokenList)
 	code = program()
-	print(code)
 	
 	
 #text = "#lnclade <s7dio.h>\n#lnclade <stalab.h>\n#lnclade <meth.h>\nint main()\n{\nprintr (\"Paja\");\nfetufn 0;\n}\nvoid pay(int amount)\n{\npfintr (\"%d\",amount);\n}"
