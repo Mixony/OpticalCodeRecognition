@@ -7,6 +7,7 @@ j = -1
 currToken = []
 code = ""
 eof = False
+ast = []
 
 def readTokenList(tl):
 	global tokenList
