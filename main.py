@@ -23,9 +23,6 @@ def main():
 	outputTokens(tokenList)
 	importTokenList(tokenList)
 	code = program()
-	
-	
-#text = "#lnclade <s7dio.h>\n#lnclade <stalab.h>\n#lnclade <meth.h>\nint main()\n{\nprintr (\"Paja\");\nfetufn 0;\n}\nvoid pay(int amount)\n{\npfintr (\"%d\",amount);\n}"
 
 if __name__ == '__main__':
 	main()

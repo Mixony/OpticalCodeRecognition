@@ -241,6 +241,7 @@ def argumentsDefinition():
 def block():
 	global code
 	global currToken
+	body = []
 	while not accept('closedcbracket'):
 		tkn = currToken[1]
 		if accept('vartype'):
