@@ -153,6 +153,7 @@ def doubleValue(tkn):
 def stringValue():
 	global code
 	global currToken
+	strVal = ""
 	tkn = currToken[1]
 	if accept('identifier') or accept('number') or accept('float') or accept('double'):
 		if len(tkn)==1:
@@ -164,14 +165,17 @@ def stringValue():
 		else:
 			code += '\"'
 			code += tkn + ' '
+			strVal += tkn + ' '
 			tkn = currToken
 			while tkn[0] != 'quote':
 				code += tkn[1] + ' '
+				strVal += tkn[1] + ' '
 				nextToken()
 				tkn = currToken
 			code += '\b\"'
+			strVal += '\b'
 			nextToken()
-			return ['stringValue','\"'+tkn[0]+'\"']
+			return ['stringValue','\"'+strVal+'\"']
 
 def globalSpace(vt,t):
 	global code
@@ -241,98 +245,127 @@ def argumentsDefinition():
 def block():
 	global code
 	global currToken
-	body = []
+	body = ['block']
 	while not accept('closedcbracket'):
 		tkn = currToken[1]
 		if accept('vartype'):
 			code += tkn
 			code += ' '
-			varDefinition()
+			body.append(varDefinition(tkn))
 			code += '\n'
 		elif accept('return'):
+			returnStatement = ['return']
 			code += tkn
 			if accept('semicolon'):
 				code += ';'
+				body.append(returnStatement)
 				continue
 			code += ' '
-			expression()
+			returnStatement.append(expression())
+			body.append(returnStatement)
 			if accept('semicolon'):
 				code += ';'
 		elif accept('identifier'):
-			if accept('openbracket'):
-				code += tkn
-				callArguments()
+			code += tkn
+			ident = tkn
+			if accept('openbracket') or accept('opencbracket'):
+				functionCall = ['function_call',ident]
+				functionCall.append(callArguments())
 				if accept('semicolon'):
 					code += ';'
-			elif accept('opencbracket'):
-				callArguments()
-				code += tkn
+				body.append(functionCall)
+			elif accept('equals'):
+				valueAssigning = ['value_assigning',ident]
+				code += '='
+				valueAssigning.append(expression())
+				if(accept('semicolon')):
+					code += ';'
+				body.append(valueAssigning)
 			code += '\n'
 		elif accept('for'):
 			code += 'for'
-			forLoop()
+			body.append(forLoop())
 		elif accept('while'):
 			code += 'while'
-			whileLoop()
+			body.append(whileLoop())
 		elif accept('if'):
 			code += 'if'
-			ifStatement()
+			body.append(ifStatement())
 		else:
 			nextToken()
+	return body
 
 def oneLineBlock():
 	global code
 	global currToken
 	tkn = currToken[1]
+	ret = ['olblock']
 	if accept('vartype'):
-		code += tkn
-		if accept('asterisk'):
-			code += '*'
-		code += ' '
-		varDefinition()
-		code += '\n'
-	elif accept('return'):
-		code += tkn
-		if accept('semicolon'):
-			code += ';'
-			return
-		code += ' '
-		expression()
-		if accept('semicolon'):
-			code += ';'
-	elif accept('identifier'):
-		if accept('openbracket'):
 			code += tkn
-			callArguments()
+			code += ' '
+			ret.append(varDefinition(tkn))
+			code += '\n'
+	elif accept('return'):
+			returnStatement = ['return']
+			code += tkn
 			if accept('semicolon'):
 				code += ';'
-		elif accept('opencbracket'):
-			callArguments()
-			code += tkn
+				ret.append(returnStatement)
+			code += ' '
+			returnStatement.append(expression())
+			ret.append(returnStatement)
+			if accept('semicolon'):
+				code += ';'
+	elif accept('identifier'):
+		code += tkn
+		ident = tkn
+		if accept('openbracket') or accept('opencbracket'):
+			functionCall = ['function_call',ident]
+			functionCall.append(callArguments())
+			if accept('semicolon'):
+				code += ';'
+			ret.append(functionCall)
+		elif accept('equals'):
+			valueAssigning = ['value_assigning',ident]
+			code += '='
+			valueAssigning.append(expression())
+			if(accept('semicolon')):
+				code += ';'
+			ret.append(valueAssigning)
 		code += '\n'
 	elif accept('for'):
 		code += 'for'
-		forLoop()
+		ret.append(forLoop())
+	elif accept('while'):
+		code += 'while'
+		ret.append(whileLoop())
+	elif accept('if'):
+		code += 'if'
+		ret.append(ifStatement())
 	else:
 		nextToken()
+	return ret
 
-def varDefinition():
+def varDefinition(vt):
 	global code
 	global currToken
 	global j
+	variable = ['var_declaration',vt]
 	tkn = currToken[1]
 	if expect('identifier'):
 		code += tkn
+		variable.append(tkn)
 		tkn = currToken[1]
 		if accept('semicolon') or accept('colon'):
 			code += ';'
-			return
+			return variable
 		elif accept('equals'):
 			code += tkn
-			expression()
+			variable.append('equals')
+			variable.append(expression())
 			if accept('semicolon') or accept('colon'):
 				code += ';'
-			return
+			return variable
 
 def factor():
 	global code
@@ -343,7 +376,7 @@ def factor():
 	ret = ['factor']
 	if accept('identifier'):
 		code += tkn
-		ret.append(tkn)
+		ret.append(['identifier',tkn])
 	elif accept('number'):
 		ret.append(intValue(tkn))
 	elif accept('float'):
@@ -406,86 +439,103 @@ def expression():
 def callArguments():
 	global code
 	global currToken
+	arguments = ['arguments']
 	tkn = currToken[1]
 	code += '('
 	while not (accept('closedbracket') or accept('closedcbracket')):
-		expression()
+		arguments.append(expression())
 		if currToken[0]=='comma':
 			code += ','
 			nextToken()
 		tkn = currToken[1]
 	code += ')'
+	return arguments
 
 def forLoop():
 	global code
 	global currToken
+	forloop = ['for']
 	if currToken[0] == 'openbracket' or currToken[0] == 'opencbracket':
 		nextToken()
 		code += '('
-		varInit()
+		forloop.append(varInit())
 		if accept('semicolon'):
 			code += ';'
-		condition()
+		forloop.append(condition())
 		if accept('semicolon'):
 			code += ';'
-		increment()
+		forloop.append(increment())
 		if accept('closedbracket'):
 			code += ')\n'
 		if accept('opencbracket'):
-			block()
+			forloop.append(block())
 		else:
-			oneLineBlock()
+			forloop.append(oneLineBlock())
 	else:
 		print('for loop needs open bracket')
+	return forloop
 
 def varInit():
 	global code
 	global currToken
+	ret = ['varInit']
 	if currToken[0] == 'semicolon' or currToken[0] == 'colon':
 			code += ';'
 			nextToken()
-			return
+			return ret
 	while currToken[0] != 'semicolon' and currToken[0] != 'colon':
-		expression()
+		ret.append(expression())
 		if currToken[0] == 'comma' or currToken[0] == 'period':
+			ret.append(',')
 			code += ','
 			nextToken()
 		elif currToken[0] == 'equals':
+			ret.append('=')
 			code += '='
 			nextToken()
+	return ret
 
 def condition():
 	global code
 	global currToken
 	tkn = currToken[1]
+	ret = ['condition']
 	while currToken[0] in ['identifier', 'number', 'float', 'double', 'less', 'greater', 'equals', 'exclamation']:
-		expression()
+		ret.append(expression())
 		if accept('less'):
 			if currToken[0]=='equals':
+				ret.append('<=')
 				code += '<='
 				nextToken()
 			else:
+				ret.append('<')
 				code += '<'
 		elif accept('greater'):
 			if currToken[0]=='equals':
+				ret.append('>=')
 				code += '>='
 				nextToken()
 			else:
+				ret.append('>')
 				code += '>'
 		elif accept('equals'):
 			if currToken[0]=='equals':
+				ret.append('==')
 				code += '=='
 				nextToken()
 		elif accept('exclamation'):
 			if currToken[0]=='equals':
+				ret.append('!=')
 				code += '!='
 				nextToken()
 		if currToken[0] == 'closedbracket' or currToken[0] == 'closedcbracket':
+			ret.append('0')
 			code += '0'
 		else:
-			expression()
+			ret.append(expression())
+	return ret
 
-def increment():
+def increment(): # TODO: WORK ON INCREMENT PARSER
 	global code
 	global currToken
 	while currToken[0] in ['identifier', 'number', 'float', 'double', 'plus', 'minus', 'equals', 'asteriks', 'slash']:
@@ -495,40 +545,47 @@ def increment():
 def whileLoop():
 	global code
 	global currToken
+	ret = ['while']
 	if accept('openbracket') or accept('opencbracket'):
 		code += '('
-	condition()
+	ret.append(condition())
 	if accept('closedbracket') or accept('closedcbracket'):
 		code += ')\n'
 	if accept('opencbracket'):
-		block()
+		ret.append(block())
 	else:
-		oneLineBlock()
+		ret.append(oneLineBlock())
+	return ret
 
 def ifStatement():
 	global code
 	global currToken
+	retif = ['if']
+	retelse = ['else']
 	if accept('openbracket') or accept('opencbracket'):
 		code += '('
-	condition()
+	retif.append(condition())
 	if accept('closedbracket') or accept('closedcbracket'):
 		code += ')\n'
 	if accept('opencbracket'):
-		block()
+		retif.append(block())
 	else:
-		oneLineBlock()
+		retif.append(oneLineBlock())
 	if accept('else'):
 		code += 'else '
 		if accept('if'):
 			code += 'if'
-			ifStatement()
+			retelse.append(ifStatement())
 		else:
-			elseStatement()
+			retelse.append(elseStatement())
+	else:
+		return [retif]
+	return [retif, retelse]
 
 def elseStatement():
 	global code
 	global currToken
 	if accept('opencbracket'):
-		block()
+		return block()
 	else:
-		oneLineBlock()
+		return oneLineBlock()
