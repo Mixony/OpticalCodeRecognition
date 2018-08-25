@@ -5,8 +5,6 @@ diff = 20
 tesseract_config = r""" -c tessedit_char_whitelist=0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ#%\'\"<>(){};:,.=+-*/"""
 tesseract_language = "eng"
 
-special_characters = ['<','>','(',')','{','}','#','\'','\"',';',':']
-
 tokens = [	
 	
 	['system_library','assert.h','complex.h','ctype.h','errno.h','fenv.h','float.h',
@@ -53,6 +51,7 @@ tokens = [
 ]
 
 system_libraries = [
+
 	'assert.h',[],
 	'complex.h',[],
 	'ctype.h',[],
@@ -82,10 +81,5 @@ system_libraries = [
 	'uchar.h',[],
 	'wchar.h',[],
 	'wctype.h',[]
-]
-
-included_libraries = [
-
-	
 
 ]

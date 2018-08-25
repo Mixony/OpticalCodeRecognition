@@ -1,5 +1,4 @@
 from utils import *
-from constants import special_characters
 
 def separateText(text):
 	lines = separateSpecialCharacters(separateLines(text))

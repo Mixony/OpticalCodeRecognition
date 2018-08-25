@@ -27,6 +27,7 @@ def nextToken():
 		print(ast)
 		print('\n')
 		printAST(ast)
+		AstToCode(ast)
 		exit()
 	if j >= len(tokenList[i]):
 		j=0
@@ -86,7 +87,7 @@ def ppdirective():
 		directive = ['include',includeStatement()]
 	elif accept('define'):
 		code+='define '
-		directive = ['define',defineVarName()]
+		directive = ['define']+defineVarName()
 	return directive
 
 def includeStatement():
@@ -183,10 +184,10 @@ def globalSpace(vt,t):
 	tkn = currToken[1]
 	if accept('semicolon'):
 		code += ';'
-		return ['variable',[vt,t]]
+		return ['variable',vt,t]
 	elif accept('equals'):
 		code += '='
-		eq = ['equals',['variable',[vt,t]],expression()]
+		eq = ['variable',vt,t,expression()]
 		if accept('semicolon'):
 			code += ';'
 		return eq
@@ -226,7 +227,6 @@ def argumentsDefinition():
 	t = None
 	args = []
 	while not (accept('closedbracket') or accept('closedcbracket') or accept('greater')):
-		args.append('var')
 		if expect('vartype'):
 			code += tkn + ' '
 			vt = tkn
@@ -389,7 +389,9 @@ def factor():
 		ret.append(stringValue())
 	elif accept('openbracket'):
 		code += tkn
+		ret.append('(')
 		ret.append(expression())
+		ret.append(')')
 		expect('closedbracket')
 		code += ')'
 	else:
@@ -423,7 +425,6 @@ def expression():
 		code += tkn
 		ret.append(tkn)
 		nextToken()
-	
 	ret.append(term())
 	tkntyp = currToken[0]
 	tkn = currToken[1]
@@ -538,9 +539,43 @@ def condition():
 def increment(): # TODO: WORK ON INCREMENT PARSER
 	global code
 	global currToken
-	while currToken[0] in ['identifier', 'number', 'float', 'double', 'plus', 'minus', 'equals', 'asteriks', 'slash']:
+	ret = ['increment']
+	while currToken[0] != 'closedbracket':
+		if(currToken[0]=='identifier'):
+			ret.append(currToken[1])
+			nextToken()
+			if(currToken[0] == 'plus'):
+				nextToken()
+				if(currToken[0]=='plus'):
+					ret.append('++')
+					nextToken()
+				elif(currToken[0]=='equals'):
+					ret.append('+=')
+					nextToken()
+					ret.append(expression())
+			elif(currToken[0]=='minus'):
+				nextToken()
+				if(currToken[0] == 'minus'):
+					ret.append('--')
+					nextToken()
+				elif(currToken[0] == 'equals'):
+					ret.append('-=')
+					nextToken()
+					ret.append(expression())
+			elif(currToken[0]=='asterisk'):
+				nextToken()
+				if(currToken[0] == 'equals'):
+					ret.append('*=')
+					nextToken()
+					ret.append(expression)
+			elif(currToken[0] == 'slash'):
+				nextToken()
+				if(currToken[0]=='equals'):
+					ret.append('/=')
+					nextToken()
+					ret.append(expression)
 		code += currToken[1]
-		nextToken();
+	return ret
 
 def whileLoop():
 	global code
