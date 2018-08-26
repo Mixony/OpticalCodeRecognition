@@ -173,8 +173,9 @@ def stringValue():
 				strVal += tkn[1] + ' '
 				nextToken()
 				tkn = currToken
-			code += '\b\"'
-			strVal += '\b'
+			code = code[:-1]
+			code += '\"'
+			strVal = strVal[:-1]
 			nextToken()
 			return ['stringValue','\"'+strVal+'\"']
 
@@ -203,7 +204,7 @@ def function():
 	global currToken
 	tkn = currToken[1]
 	args = ['args']
-	body = ['body']
+	body = None
 	if accept('closedbracket'):
 		code += tkn
 	else:
@@ -211,7 +212,7 @@ def function():
 	tkn = currToken[1]
 	if accept('opencbracket') or accept('openbracket') or accept('less'):
 		code+='\n{\n'
-		body.append(block())
+		body=block()
 		code+='\n}'
 	elif accept('colon') or accept('semicolon'):
 		code += tkn
@@ -361,7 +362,6 @@ def varDefinition(vt):
 			return variable
 		elif accept('equals'):
 			code += tkn
-			variable.append('equals')
 			variable.append(expression())
 			if accept('semicolon') or accept('colon'):
 				code += ';'
