@@ -2,7 +2,7 @@ resize_width = 720
 
 diff = 20
 
-tesseract_config = r""" -c tessedit_char_whitelist=0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ#%\'\"<>(){};:,.=+-*/"""
+tesseract_config = r"""-psm 6 -c tessedit_char_whitelist=0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ#%\'\"<>(){};:,.=+-*/\\"""
 tesseract_language = "eng"
 
 tokens = [	

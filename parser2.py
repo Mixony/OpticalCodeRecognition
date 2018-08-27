@@ -440,7 +440,7 @@ def expression():
 def callArguments():
 	global code
 	global currToken
-	arguments = ['arguments']
+	arguments = ['args']
 	tkn = currToken[1]
 	code += '('
 	while not (accept('closedbracket') or accept('closedcbracket')):
@@ -479,7 +479,7 @@ def forLoop():
 def varInit():
 	global code
 	global currToken
-	ret = ['varInit']
+	ret = ['var_init']
 	if currToken[0] == 'semicolon' or currToken[0] == 'colon':
 			code += ';'
 			nextToken()
@@ -542,8 +542,7 @@ def increment(): # TODO: WORK ON INCREMENT PARSER
 	ret = ['increment']
 	while currToken[0] != 'closedbracket':
 		if(currToken[0]=='identifier'):
-			ret.append(currToken[1])
-			nextToken()
+			ret.append(factor())
 			if(currToken[0] == 'plus'):
 				nextToken()
 				if(currToken[0]=='plus'):
@@ -614,8 +613,8 @@ def ifStatement():
 		else:
 			retelse.append(elseStatement())
 	else:
-		return [retif]
-	return [retif, retelse]
+		return ['ifelse', retif]
+	return ['ifelse', retif, retelse]
 
 def elseStatement():
 	global code
