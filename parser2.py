@@ -1,5 +1,6 @@
 from constants import *
 from ast2code import *
+import nltk
 
 tokenList = []
 i = 0
@@ -22,12 +23,6 @@ def nextToken():
 	global eof
 	j+=1
 	if eof:
-		print(code)
-		print('\n')
-		print(ast)
-		print('\n')
-		printAST(ast)
-		AstToCode(ast)
 		exit()
 	if j >= len(tokenList[i]):
 		j=0
@@ -61,7 +56,7 @@ def program():
 	global ast
 	ast=['program']
 	nextToken()
-	while i <= len(tokenList):
+	while eof != True:
 		tkn = currToken[1]
 		vartype = tkn
 		if accept('hashtag') :
@@ -76,8 +71,14 @@ def program():
 				ast.append(globalSpace(vartype, tkn))
 			code+='\n'
 		else:
-			nextToken()
-	return code
+			if len(tkn) == 1:
+				code += '#'
+				nextToken()
+				ast.append(ppdirective())
+				code+='\n'
+			else:
+				nextToken()
+	return ast
 
 def ppdirective():
 	global code
@@ -352,10 +353,24 @@ def varDefinition(vt):
 	global currToken
 	global j
 	variable = ['var_declaration',vt]
-	tkn = currToken[1]
-	if expect('identifier'):
-		code += tkn
-		variable.append(tkn)
+	if currToken[0] == 'identifier':
+		code += currToken[1]
+		variable.append(numberToIdentifier(currToken[1]))
+		nextToken()
+		tkn = currToken[1]
+		if accept('semicolon') or accept('colon'):
+			code += ';'
+			return variable
+		elif accept('equals'):
+			code += tkn
+			variable.append(expression())
+			if accept('semicolon') or accept('colon'):
+				code += ';'
+			return variable
+	elif currToken[0] == 'number':
+		code += numberToIdentifier(currToken[1])
+		variable.append(numberToIdentifier(currToken[1]))
+		nextToken()
 		tkn = currToken[1]
 		if accept('semicolon') or accept('colon'):
 			code += ';'
@@ -623,3 +638,26 @@ def elseStatement():
 		return block()
 	else:
 		return oneLineBlock()
+
+def numberToIdentifier(number):
+	if number[0] == '0':
+		number = 'o' + number[1:]
+	elif number[0] == '1':
+		number = 'l' + number[1:]
+	elif number[0] == '2':
+		number = 'z' + number[1:]
+	elif number[0] == '3':
+		number = 'a' + number[1:]
+	elif number[0] == '4':
+		number = 'A' + number[1:]
+	elif number[0] == '5':
+		number = 's' + number[1:]
+	elif number[0] == '6':
+		number = 'b' + number[1:]
+	elif number[0] == '7':
+		number = 'T' + number[1:]
+	elif number[0] == '8':
+		number = 'B' + number[1:]
+	elif number[0] == '9':
+		number = 'g' + number[1:]
+	return number

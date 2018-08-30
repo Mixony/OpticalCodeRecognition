@@ -1,3 +1,5 @@
+import nltk
+
 tab = 0
 
 astIncludes = []
@@ -18,13 +20,12 @@ def printAST(ast):
 			print(('\t'*tab)+str(node))
 
 def AstToCode(ast):
+	global astCode
 	if(ast[0] == 'program'):
 		astProgram(ast[1:])
-	'''print(astIncludes)
-	print(astFlags)
-	print(astVariables)
-	print(astFunctions)'''
-	print(astCode)
+	if astCode[-1] == '\n':
+		return astCode[:-1]
+	return astCode
 
 def astProgram(prog):
 	global astCode
@@ -89,8 +90,10 @@ def astFunction(func):
 	global astFunctions
 	global astCode
 	astFunctions.append(func[0:3])
-	# TODO: do args formatting and add them to the vars
-	astCode += func[0] + ' ' + func[1] + '()\n'
+	astCode += func[0] + ' ' + func[1] + '('
+	if(func[2][0] == 'args'):
+		astArguments(func[2][1])
+	astCode += ')\n'
 	if(len(func) == 4):
 		astCode += '{\n'
 		if(func[3][0] == 'block'):
@@ -98,6 +101,15 @@ def astFunction(func):
 		astCode += '}\n'
 	else:
 		astCode += ';\n'
+
+def astArguments(args):
+	global astCode
+	global astLevel
+	global astVariables
+	for arg in args:
+		astCode += arg[0] + ' ' + arg[1] + ', '
+		astVariables.append([astLevel+1,arg[0],arg[1]])
+	astCode= astCode[:-2]
 
 def astBlock(blck):
 	global astLevel
@@ -120,6 +132,7 @@ def astBlock(blck):
 			astIfStatement(elem[1:])
 		elif elem[0] == 'value_assigning':
 			astWhileLoop(elem[1:])
+	removeVariables()
 	astLevel -= 1
 
 def astExpression(expr):
@@ -140,6 +153,7 @@ def astTerm(term):
 
 def astFactor(fact):
 	global astCode
+	global astVariables
 	if(fact[0]=='('):
 		astCode += '('
 		if(fact[1][0]=='expression'):
@@ -158,7 +172,13 @@ def astFactor(fact):
 	elif(fact[0][0] == 'stringValue'):
 		astCode += fact[0][1]
 	elif(fact[0][0] == 'identifier'):
-		astCode += fact[0][1]
+		for var in astVariables:
+			if var[2] == fact[0][1]:
+				astCode += fact[0][1]
+				break
+		else:
+			print('ERROR WITH VARIABLE '+fact[0][1])
+			correctIdent(fact[0][1])
 		#CHECK IF VARIABLE IS
 		#AVAILABLE TO USE
 
@@ -296,6 +316,7 @@ def astOneLineBlock(blck):
 		astIfStatement(blck[1:])
 	elif blck[0] == 'value_assigning':
 		astValueAssign(blck[1:])
+	removeVariables()
 	astLevel -= 1
 
 def astWhileLoop(loop):
@@ -356,3 +377,47 @@ def astElseStatement(stat):
 			astCode += '}\n'
 		elif(stat[0] == 'olblock'):
 			astOneLineBlock(stat[1])
+
+def removeVariables():
+	global astVariables
+	global astLevel
+	tmps = []
+	for var in astVariables:
+		if int(var[0]) < astLevel:
+			tmps.append(var)
+	astVariables = tmps
+
+def correctIdent(iden):
+	global astVariables
+	global astCode
+
+	for var in astVariables:
+		if nltk.edit_distance(var[2],iden) < len(iden):
+			#TODO: DONT USE FIRST SIMILAR NAME 
+			#TODO: CHECK FOR MOST SIMILAR
+			astCode += var[2]
+			break
+	else:
+		for char in iden:
+			if char in ['D', 'O', 'Q', 'a', 'o', 'U', 'u', 'n']:
+				astCode += '0'
+			elif char in ['I', 'J', 'L', 'i', 'j', 'l']:
+				astCode += '1'
+			elif char in ['Z', 'z']:
+				astCode += '2'
+			elif char in ['E', 'e']:
+				astCode += '3'
+			elif char in ['A', 'X', 'x']:
+				astCode += '4'
+			elif char in ['S', 's']:
+				astCode += '5'
+			elif char in ['G', 'b', 'd', 'C', 'c', 'h']:
+				astCode += '6'
+			elif char in ['T', 'Y', 't', 'y', 'f']:
+				astCode += '7'
+			elif char in ['B', 'R']:
+				astCode += '8'
+			elif char in ['g', 'q', 'P', 'p']:
+				astCode += '9'
+			else:
+				astCode += '3';

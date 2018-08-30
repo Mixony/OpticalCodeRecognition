@@ -1,0 +1,20 @@
+#include "password.h"
+#include <stdio.h>
+#define PAJA (1+2*3)
+int main(int x, int y)
+{
+char b = "Hello world";
+int a = ((1+2+3)+2);
+printCar(a);
+printf("%d", a);
+return (1-a)*7;
+}
+void printCar(int nd, int i)
+{
+if(i>3)
+printf("Car %d", nd);
+else if(i<0)
+printf("Car %d", nd);
+else
+printf("Bye");
+}
